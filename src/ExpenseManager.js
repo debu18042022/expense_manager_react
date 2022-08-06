@@ -15,7 +15,8 @@ function ExpenseManager() {
   const [hisamtgrc,set_hisamtgrc] = useState(0);
   const [hisamtrv,set_hisamttrv] = useState(0);
   const [hisamtveg,set_hisamtveg] = useState(0);
-  const [hisamtmis,set_hisamtmis] = useState(0);
+  const [hisamtmis,set_hisamtmis] = useState(0); 
+  const[flag,set_Flag]  = useState(0);
  
   const clear = () => {
     set_total_sal_amount();
@@ -37,31 +38,27 @@ function ExpenseManager() {
   const get_Total_sal_Amount = (event) => {
     let value= event.target.value;
     set_total_sal_amount(value);
-    //
   }
 
   const get_name = (event) => {
     set_name(event.target.value);
-    //
   }
 
   const get_category = (event) => {
     set_category(event.target.value);
-    //
   }
 
   const get_expense = (event) => {
     set_expense(event.target.value);
-    //
   }
 
   const get_date = (event) => {
     set_date(event.target.value);
-    //
   }
 
   const Add = () => {
     if(name && category && expense && date){
+      // document.getElementById("detail_table").style.display='block'
       let temp_arr = {'user_name':name,'expense_category':category,'expense_price':expense,'expense_date':date};
       set_details_data([...details_arr_data, temp_arr]);
       display_salary();
@@ -108,14 +105,33 @@ function ExpenseManager() {
   });
 
   const delete_data = (index) => {
+    // let arr = details_arr_data;
+
     let temp = details_arr_data.filter((_, i) => i !== index);
     set_details_data(temp);
-    //
+   
+    if(temp.length===0){
+    set_total_sal_amount();
+    set_total_expense_amount();
+    set_remaining_salary_amount();
+    set_name('');
+    set_category('');
+    set_expense('');
+    set_date('');
+    set_details_data([]);
+    set_update_index([]);
+    set_hisamtgrc(0);
+    set_hisamttrv(0);
+    set_hisamtveg(0);
+    set_hisamtmis(0);
+    set_total_sal_amount(0);
+    }
     display_salary();
   }
 
   const edit = (edit_index) => {
-    
+    set_Flag(1)
+    console.log(flag)
     details_arr_data.map((item,index) => {
       if(index === edit_index){
         set_update_index(edit_index);
@@ -129,6 +145,7 @@ function ExpenseManager() {
   }
   
   const update_data = () => {
+    set_Flag(0)
     if(name && category && expense && date){
     let temp_arr = {'user_name':name,'expense_category':category,'expense_price':expense,'expense_date':date};
     let temp_array_for_update = [...details_arr_data];
@@ -145,29 +162,39 @@ function ExpenseManager() {
     })
     set_total_expense_amount(Number(sal));
     set_remaining_salary_amount(Number(total_sal_amount)-Number(sal));
+    
   }
 
- 
+  console.log(flag);
 
   return (
-    <div>
+    <div style={{height:"100vh",backgroundColor:"rgb(211, 211, 193)"}}>
       <div className="total_Amount_container">
         <div className="total_income" id="">
           <label>Total Salary Amount :</label>
           <input type="number" value={total_sal_amount} onChange={get_Total_sal_Amount}/>
         </div>
-        <div className="total_income" id="">
-          <label>Total Expense Amount :</label>
-          <input type="number" value={total_expense_amount}/>
-        </div>
-        <div className="total_income" id="">
-          <label>Remaining Salary Amount :</label>
-          <input type="number" value={remaining_salary_amount}/>
-        </div>
+        {
+            details_arr_data.length !==0 ?
+            <>
+            <div className="total_income" id="">
+              <label>Total Expense Amount :</label>
+              <input type="number" disabled value={total_expense_amount}/>
+            </div>
+            <div className="total_income" id="">
+              <label>Remaining Salary Amount :</label>
+              <input type="number" disabled value={remaining_salary_amount}/>
+            </div>
+          </>
+          :<></>
+        }
+        
       </div>
 
-      <div style={{display:"grid",placeItems:"center",padding:"2vw",backgroundColor:"rgb(124, 213, 242)"}}>
-        <table className="show_categorywise_amount"> 
+      <div style={{display:"grid",placeItems:"center",padding:"2vw",backgroundColor:"rgb(155, 155, 143)"}}>
+        {
+          details_arr_data.length !==0 ? 
+          <table className="show_categorywise_amount"> 
         
             <tr>
                 <td><h3>Grocerray:</h3></td>
@@ -186,15 +213,17 @@ function ExpenseManager() {
                 <td><h4>${hisamtmis}</h4></td>
             </tr>
         </table>
+        :<></>
+        }
       </div>
-      <div style={{display:"grid",placeItems:"center",backgroundColor:"rgb(11, 133, 174)"}}>
+      <div style={{display:"grid",placeItems:"center",backgroundColor:"rgb(211, 211, 193)"}}>
           <table className="details">
               <tr>
                   <td>name</td>
                   <td><input value={name} onChange={get_name}/></td>
                   <td>category</td>
                   <td>
-                      <select style={{width:"100%",outline:"none",border:"none"}} value={category}
+                      <select style={{width:"100%",outline:"none",border:"none"}} 
                        onChange={get_category}>
                         <option selected disabled>select category</option>
                         <option>Grocerray</option>
@@ -213,13 +242,20 @@ function ExpenseManager() {
               </tr>
           </table>
           <div>
-            <button style={{width:"12vw",height:"5vh",margin:"4px"}} onClick={Add}>Add</button>
+            <button id="add_button" style={{width:"12vw",height:"5vh",margin:"4px"}} onClick={Add}>Add</button>
             <button style={{width:"12vw",height:"5vh",margin:"4px"}} onClick={clear}>Clear</button>
-            <button style={{width:"12vw",height:"5vh",margin:"4px"}} onClick={update_data}>update</button>
+            {
+              details_arr_data.length &&flag===1 ? 
+              <button style={{width:"12vw",height:"5vh",margin:"4px"}} onClick={update_data}>update</button>
+              :<></>
+            }
+            
           </div>
       </div>
       <div className="show_table_detail">
-          <table>
+        {
+          details_arr_data.length !==0 ? 
+          <table id="detail_table" >
           <tr>
               <th>Name</th>
               <th>Category</th>
@@ -241,8 +277,9 @@ function ExpenseManager() {
               </tr>
             ))
           }
-          
           </table>
+          :<></>
+        }
       </div>
     </div>
   );
